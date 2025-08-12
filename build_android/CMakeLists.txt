@@ -32,24 +32,55 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/pffft/src)
 
 # Essential WebRTC AEC3 files for TTS echo cancellation - 2025-01-28
 set(WEBRTC_AEC3_SOURCES
-    # Core AEC3 echo cancellation modules
+    # API files - Required for AEC3 factory and configuration
+    "../api/audio/echo_canceller3_factory.cc"
+    "../api/audio/echo_canceller3_config.cc"
+    "../api/audio/audio_frame.cc"
+    
+    # Core AEC3 echo cancellation modules - Available in AEC3Demo
     "../modules/audio_processing/aec3/echo_canceller3.cc"
-    "../modules/audio_processing/aec3/aec3_fft.cc"
-    "../modules/audio_processing/aec3/adaptive_fir_filter.cc"
-    "../modules/audio_processing/aec3/block_processor.cc"
     "../modules/audio_processing/aec3/echo_remover.cc"
     "../modules/audio_processing/aec3/subtractor.cc"
     "../modules/audio_processing/aec3/suppression_filter.cc"
     "../modules/audio_processing/aec3/render_buffer.cc"
     "../modules/audio_processing/aec3/render_delay_controller.cc"
+    "../modules/audio_processing/aec3/render_delay_buffer.cc"
+    "../modules/audio_processing/aec3/render_signal_analyzer.cc"
+    "../modules/audio_processing/aec3/echo_path_variability.cc"
+    "../modules/audio_processing/aec3/erl_estimator.cc"
+    "../modules/audio_processing/aec3/erle_estimator.cc"
+    "../modules/audio_processing/aec3/fullband_erle_estimator.cc"
+    "../modules/audio_processing/aec3/subband_erle_estimator.cc"
+    "../modules/audio_processing/aec3/signal_dependent_erle_estimator.cc"
+    "../modules/audio_processing/aec3/residual_echo_estimator.cc"
+    "../modules/audio_processing/aec3/reverb_model_estimator.cc"
+    "../modules/audio_processing/aec3/reverb_decay_estimator.cc"
+    "../modules/audio_processing/aec3/reverb_frequency_response.cc"
+    "../modules/audio_processing/aec3/reverb_model.cc"
+    "../modules/audio_processing/aec3/subband_nearend_detector.cc"
+    "../modules/audio_processing/aec3/stationarity_estimator.cc"
+    "../modules/audio_processing/aec3/spectrum_buffer.cc"
+    "../modules/audio_processing/aec3/fft_buffer.cc"
+    "../modules/audio_processing/aec3/filter_analyzer.cc"
+    "../modules/audio_processing/aec3/frame_blocker.cc"
+    "../modules/audio_processing/aec3/moving_average.cc"
+    "../modules/audio_processing/aec3/matched_filter.cc"
+    "../modules/audio_processing/aec3/matched_filter_lag_aggregator.cc"
+    "../modules/audio_processing/aec3/refined_filter_update_gain.cc"
+    "../modules/audio_processing/aec3/subtractor_output.cc"
+    "../modules/audio_processing/aec3/subtractor_output_analyzer.cc"
+    "../modules/audio_processing/aec3/suppression_gain.cc"
+    "../modules/audio_processing/aec3/echo_remover_metrics.cc"
+    "../modules/audio_processing/aec3/render_delay_controller_metrics.cc"
     
     # Required AEC3 support modules
-    "../modules/audio_processing/aec3/api_call_jitter_metrics.cc"
-    "../modules/audio_processing/aec3/block_delay_buffer.cc"
-    "../modules/audio_processing/aec3/block_framer.cc"
-    "../modules/audio_processing/aec3/config_selector.cc"
-    "../modules/audio_processing/aec3/frame_blocker.cc"
     "../modules/audio_processing/aec3/multi_channel_content_detector.cc"
+    
+    # Audio processing support files
+    "../modules/audio_processing/audio_buffer.cc"
+    "../modules/audio_processing/high_pass_filter.cc"
+    "../modules/audio_processing/splitting_filter.cc"
+    "../modules/audio_processing/three_band_filter_bank.cc"
     
     # Essential audio processing
     "../modules/audio_processing/audio_buffer.cc"
