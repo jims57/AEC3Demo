@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <cstring>
+#include <chrono>
 
 // Real WebRTC AEC3 includes
 #include "api/audio/echo_canceller3_factory.h"
@@ -14,6 +15,52 @@
 #include "modules/audio_processing/high_pass_filter.h"
 #include "common_audio/channel_buffer.h"
 #include "rtc_base/logging.h"
+#include "absl/strings/string_view.h"
+
+// Essential stubs for WebRTC AEC3 echo cancellation - 2025-01-28
+
+namespace webrtc {
+// Forward declarations only - implementations at the end
+class ApmDataDumper {
+public:
+    explicit ApmDataDumper(int);
+    ~ApmDataDumper();
+};
+
+namespace field_trial {
+std::string FindFullName(absl::string_view);
+}
+
+class FieldTrialParameterInterface {
+public:
+    explicit FieldTrialParameterInterface(absl::string_view);
+    virtual ~FieldTrialParameterInterface();
+};
+
+template<typename T>
+class FieldTrialParameter : public FieldTrialParameterInterface {
+public:
+    FieldTrialParameter(absl::string_view key, T default_value);
+    T GetValue() const { return value_; }
+private:
+    T value_;
+};
+
+void ParseFieldTrial(std::initializer_list<FieldTrialParameterInterface*>, absl::string_view);
+}
+
+// RTC base stubs
+namespace rtc {
+class RaceChecker {
+public:
+    RaceChecker() noexcept;
+    ~RaceChecker() = default;
+};
+
+namespace webrtc_logging_impl {
+void Log(const LogArgType*, ...);
+}
+}
 
 #define LOG_TAG "WebRTCAEC3Real"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -56,21 +103,16 @@ public:
             return false;
         }
 
-        // Configure WebRTC AEC3 for mobile optimization
+        // Configure WebRTC AEC3 for TTS echo cancellation - 2025-01-28
         webrtc::EchoCanceller3Config config;
-            
-            // Mobile optimizations based on ace-key-points.txt
-            if (mobile_mode) {
-                config.filter.refined.length_blocks = 12;  // Shorter filter for mobile
-                config.filter.coarse.length_blocks = 4;
-                config.erle.max_l = 4.0f;                  // Conservative ERLE limit
-                config.erle.max_h = 1.5f;
-                config.ep_strength.default_len = 0.83f;    // Mobile-optimized suppression
-                config.echo_audibility.floor_power = -50.0f;
-                config.render_levels.poor_excitation_render_limit = 150.0f;
-            }
-            
-            config.filter.export_linear_aec_output = true;
+        
+        // Mobile optimizations for TTS echo cancellation
+        if (mobile_mode) {
+            config.filter.refined.length_blocks = 8;   // Optimized for TTS echo removal
+            config.filter.coarse.length_blocks = 3;
+        }
+        
+        config.filter.export_linear_aec_output = true;
             
             // Create AEC3 factory and processor
             webrtc::EchoCanceller3Factory aec_factory(config);
@@ -214,6 +256,33 @@ public:
         LOGI("WebRTC AEC3处理器已销毁");
     }
 };
+
+// Complete stub implementations for WebRTC AEC3 - 2025-01-28
+
+// Field trial stubs
+std::string webrtc::field_trial::FindFullName(absl::string_view) { return ""; }
+
+webrtc::FieldTrialParameterInterface::FieldTrialParameterInterface(absl::string_view) {}
+webrtc::FieldTrialParameterInterface::~FieldTrialParameterInterface() = default;
+
+template<typename T>
+webrtc::FieldTrialParameter<T>::FieldTrialParameter(absl::string_view key, T default_value) 
+    : FieldTrialParameterInterface(key), value_(default_value) {}
+
+// Template instantiations  
+template class webrtc::FieldTrialParameter<double>;
+template class webrtc::FieldTrialParameter<int>;
+
+void webrtc::ParseFieldTrial(std::initializer_list<FieldTrialParameterInterface*>, absl::string_view) {}
+
+// AEC3 stubs
+webrtc::ApmDataDumper::ApmDataDumper(int) {}
+webrtc::ApmDataDumper::~ApmDataDumper() = default;
+
+// RTC base stubs
+rtc::RaceChecker::RaceChecker() noexcept = default;
+bool rtc::LogMessage::IsNoop(rtc::LoggingSeverity) { return true; }
+void rtc::webrtc_logging_impl::Log(const LogArgType*, ...) {}
 
 // Global processor instance
 static std::unique_ptr<WebRTCAEC3Processor> g_processor;
